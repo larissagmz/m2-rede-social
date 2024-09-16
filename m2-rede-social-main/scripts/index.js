@@ -114,13 +114,17 @@ function createProfile(list) {
     secondDivInformation.append(profileName, description);
     return divInformationProfile;
 }
+let ulListPosts = document.createElement("ul");
 function renderPosts(list) {
-    let ulListPosts = document.createElement("ul");
+    let reversedList = [...list].reverse();
+
+    
+  
     let sectionPost = document.querySelector(".section-posts");
-    for (let i = 0; i < list.length; i++) {
-        
+    for (let i = 0; i < reversedList.length; i++) {
+    
         let post = document.createElement("li");
-        let profile = createProfile(list[i]);
+        let profile = createProfile(reversedList[i]);
         let divTitleText = document.createElement("div");
         let titlePost = document.createElement("h2");
         let text = document.createElement("p");
@@ -133,14 +137,14 @@ function renderPosts(list) {
         ulListPosts.className = "list-posts";
         post.className = "post";
         titlePost.className = "title-post";
-        titlePost.innerText = list[i].title;
+        titlePost.innerText = reversedList[i].title;
         divPost.className = "div-post";
         figure.className = "image-heart";
         buttonPost.innerText = "Abrir Post";
         buttonPost.className = "open-post";
         divTitleText.className = "div-title-text";
-        text.innerText = list[i].text;
-        like.innerText = list[i].likes;
+        text.innerText = reversedList[i].text;
+        like.innerText = reversedList[i].likes;
         divHeartLike.className = "div-heart-like";
 
         sectionPost.append(ulListPosts);
@@ -150,16 +154,36 @@ function renderPosts(list) {
         divPost.append(buttonPost, divHeartLike);
         divHeartLike.append(figure, like);
 
-        buttonPost.setAttribute("data-id", list[i].id);
+        figure.setAttribute("data-id", reversedList[i].id);
+        figure.addEventListener("click", (e) => {
+            let id = Number(figure.getAttribute("data-id"));
+            console.log(id);
+            if (id === reversedList[i].id) {
+                figure.classList.toggle("image-heart-red")
+                figure.classList.toggle("image-heart")
+            if(figure.classList.contains("image-heart-red")){
+                reversedList[i].likes++
+             like.innerText = reversedList[i].likes;
+            }else{
+                reversedList[i].likes--
+                like.innerText = reversedList[i].likes;
+            }
+        }
+});
+ 
+
+        buttonPost.setAttribute("data-id", reversedList[i].id);
         buttonPost.addEventListener("click", (e) => {
             let id = Number(buttonPost.getAttribute("data-id"));
             console.log(id);
-            if (id === list[i].id) {
-                let modalPost = list[i];
+            if (id === reversedList[i].id) {
+                let modalPost = reversedList[i];
                 renderModal(modalPost);
             }
-           
+            
+            
         });
+
         
     }
     
@@ -196,24 +220,7 @@ function renderModal(posts) {
         section.parentElement.children[1].removeChild(divFade);
     });
 }
-function like(posts){
-    likeButton = document.querySelectorAll(".image-heart");
-    for(let i = 0; i < likeButton.length; i++){
-        likeButton[i].setAttribute("data-id", posts[i].id);
-    }
-    for(let i = 0; i < likeButton.length; i++){
-        likeButton[i].addEventListener("click", (e) =>{
-            let id = Number(likeButton[i].getAttribute("data-id"))
-            for(let j = 0; j < posts.length; j++){
-                if(id === posts[i].id){
-                    likeButton[i].classList.toggle("image-heart-red")
-                    likeButton[i].classList.toggle("image-heart")
-                }
-                
-            }
-        })
-    }
-}
+
 
 function buttonsSuggestion(list){
     button = document.querySelectorAll(".button-follow");
@@ -233,37 +240,40 @@ function buttonsSuggestion(list){
         })
     }
 }
-let postsGlobal
+
 function sentPost(){
     let form = document.querySelector(".form-sent-post")
     let divUl = document.querySelector(".list-posts")
-    let carlos = {
-        id: 1,
-        title: "",
-        text: "",
-        user: "Samuel Leao",
-        stack: "Front end Engineer",
-        img: "./assets/salomaoLeao.png",
-        likes: 0,
 
-    }
     form.addEventListener("submit", (e) =>{
         e.preventDefault();
-        let input = document.querySelector("#posts")
-        let textArea = document.querySelector("#text")
-        console.log("klaks");
-        if(input.value != "" && textArea.value != ""){
-            carlos.title += input.value
-            carlos.text += text.input
-            posts.splice(0, 0, carlos)
-            like(posts)
-            divUl.innerHTML = ""
-            renderPosts(posts)
-            console.log(posts);
-        }
+        let input = document.querySelector("#posts");
+        let textArea = document.querySelector("#text");
+        // Cria um novo objeto post
+        let newPost = {
+            id: posts.length + 1,  // Supondo que `posts` é um array global
+            title: input.value,
+            text: textArea.value,
+            user: "Samuel Leao",
+            stack: "Front end Engineer",
+            img: "./assets/salomaoLeao.png",
+            likes: 0
+        };
+        
+        posts.push(newPost);
+        
+        input.value = "";
+        textArea.value = "";
+        divUl.innerHTML = ""
+        renderPosts(posts);
+       
     })
+   
 }
+
+
+renderPosts(posts)
 renderUsersSuggest(suggestUsers);
-renderPosts(posts);
-sentPost()
 buttonsSuggestion(posts)
+sentPost()
+console.log(posts);
